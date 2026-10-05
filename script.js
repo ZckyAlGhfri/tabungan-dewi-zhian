@@ -528,3 +528,14 @@ document.getElementById("btnExecuteConfirm").onclick = async () => {
 
 // Inisialisasi awal
 render();
+
+// ==========================================
+// KONTROL MODAL PANDUAN PENGGUNAAN (DI PALING AKHIR)
+// ==========================================
+const modalGuide = document.getElementById("modalGuide");
+document.getElementById("btnOpenGuideModal").onclick = () => {
+  modalGuide.classList.add("active");
+};
+document.getElementById("btnCloseGuide").onclick = () => {
+  modalGuide.classList.remove("active");
+};
