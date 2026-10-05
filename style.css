@@ -569,3 +569,90 @@ button.user-btn-mini.done {
   height: auto;
   display: block;
 }
+
+/* ========================================================
+   MODUL PANDUAN PENGGUNAAN
+   ======================================================== */
+.btn-guide-pill {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-guide-pill:active {
+  background: rgba(255, 255, 255, 0.32);
+  transform: scale(0.95);
+}
+
+.modal-guide-card {
+  max-width: 420px !important;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  text-align: left;
+}
+
+.guide-header {
+  text-align: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #ebdff2;
+  padding-bottom: 10px;
+}
+
+.guide-header h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  color: #3b1b59;
+}
+
+.guide-header p {
+  margin: 0;
+  font-size: 11px;
+  color: #7b6a8a;
+}
+
+.guide-content-scroll {
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fbf8fe;
+  border: 1px solid #ebdff2;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.guide-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.guide-text strong {
+  display: block;
+  font-size: 12px;
+  color: #551d85;
+  margin-bottom: 3px;
+}
+
+.guide-text p {
+  margin: 0;
+  font-size: 11px;
+  color: #4a3d54;
+  line-height: 1.45;
+}
