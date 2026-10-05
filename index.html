@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tabungan Pernikahan Dewi & Zhian</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Library html2pdf via CDN untuk membuat file PDF langsung di browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div class="app" id="swipeArea">
@@ -18,11 +21,10 @@
       </div>
     </header>
 
-    <!-- Navigasi Ganti Bulan + Fitur Klik Cepat -->
+    <!-- Navigasi Ganti Bulan -->
     <nav class="month-navigator">
       <button class="nav-btn" id="prevMonth" aria-label="Bulan Sebelumnya">❮</button>
       
-      <!-- Klik judul ini untuk langsung lompat ke tahun/bulan manapun -->
       <div class="month-title clickable" id="btnOpenJumpModal" title="Klik untuk pilih bulan & tahun">
         <span id="currentMonthLabel">Oktober 2026</span>
         <span class="dropdown-icon">▾</span>
@@ -33,18 +35,18 @@
 
     <!-- Rincian Finansial (Dual Summary) -->
     <section class="summary-wrapper">
-      <!-- 1. Subtotal Bulan yang Sedang Dibuka -->
+      <!-- 1. Subtotal Bulan Ini -->
       <div class="summary-box">
         <div class="summary-header">
           <span class="badge-mini">BULAN INI</span>
           <span id="labelSummaryMonth">Okt 2026</span>
         </div>
         <div class="summary-grid">
-          <div class="card mini">
+          <div class="card mini dewi-card">
             <strong>Dewi</strong>
             <span id="monthDewi">Rp0</span>
           </div>
-          <div class="card mini">
+          <div class="card mini zhian-card">
             <strong>Zhian</strong>
             <span id="monthZhian">Rp0</span>
           </div>
@@ -77,13 +79,12 @@
       </div>
     </section>
 
-    <!-- Tabel Daftar Setoran Harian (dengan Animasi Slide) -->
+    <!-- Tabel Daftar Setoran Harian (Dual Control Dewi & Zhian) -->
     <main class="table-container">
       <div class="row head">
-        <div>Tanggal</div>
-        <div>Nominal Setor</div>
-        <div class="center">D</div>
-        <div class="center">Z</div>
+        <div>Tgl</div>
+        <div class="center-head dewi-head">🌸 DEWI</div>
+        <div class="center-head zhian-head">⚡ ZHIAN</div>
       </div>
       <div id="rows"></div>
     </main>
@@ -91,17 +92,22 @@
     <!-- Footer & Aksi -->
     <footer class="footer">
       <p class="swipe-hint">💡 Tips: Usap layar kanan/kiri atau ketuk nama bulan untuk mencari.</p>
-      <button class="btn-action-reset" id="btnOpenResetMenu">⚙️ Opsi Pengaturan & Reset Data</button>
+      
+      <div class="footer-buttons">
+        <button class="btn-action-export" id="btnOpenExportModal">📄 Ekspor Laporan PDF</button>
+        <button class="btn-action-reset" id="btnOpenResetMenu">⚙️ Opsi Reset</button>
+      </div>
+
       <div class="dev-watermark">
         Dual-Tier Realtime Sync Engine • Dev Edition
       </div>
     </footer>
   </div>
 
-  <!-- FLOATING TOAST (Penanda Mengambang Saat Bulan Berganti) -->
+  <!-- FLOATING TOAST -->
   <div class="month-toast" id="monthToast">📅 Oktober 2026</div>
 
-  <!-- MODAL: LOMPAT KE BULAN / TAHUN CEPAT -->
+  <!-- MODAL 1: LOMPAT KE BULAN / TAHUN CEPAT -->
   <div class="modal-overlay" id="modalJump">
     <div class="modal-card">
       <h3>📅 Pilih Bulan & Tahun</h3>
@@ -117,7 +123,36 @@
     </div>
   </div>
 
-  <!-- MODAL: Pilihan Lingkup Reset -->
+  <!-- MODAL 2: EKSPOR LAPORAN PDF -->
+  <div class="modal-overlay" id="modalExport">
+    <div class="modal-card">
+      <h3>📄 Ekspor Laporan PDF</h3>
+      <p>Tentukan rentang bulan tabungan yang ingin dicetak ke dalam file PDF:</p>
+      
+      <div class="export-range-group">
+        <label>Dari Bulan:</label>
+        <div class="jump-selects">
+          <select id="exportStartMonth" class="jump-dropdown"></select>
+          <select id="exportStartYear" class="jump-dropdown"></select>
+        </div>
+
+        <label style="margin-top: 10px;">Sampai Bulan:</label>
+        <div class="jump-selects">
+          <select id="exportEndMonth" class="jump-dropdown"></select>
+          <select id="exportEndYear" class="jump-dropdown"></select>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 16px;">
+        <button class="btn-cancel" id="btnCancelExport">Batal</button>
+        <button class="btn-confirm" id="btnExecuteExport" style="background:#2575fc;">
+          <span id="btnExportText">Unduh PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Pilihan Lingkup Reset -->
   <div class="modal-overlay" id="modalResetMenu">
     <div class="modal-card">
       <h3>Pilih Tindakan Reset</h3>
@@ -134,7 +169,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Dialog Konfirmasi & Validasi Anti Error -->
+  <!-- MODAL 4: Validasi Konfirmasi Reset -->
   <div class="modal-overlay" id="modalConfirm">
     <div class="modal-card">
       <h3 id="confirmTitle" class="danger-text">Konfirmasi Tindakan</h3>
@@ -153,6 +188,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Container Rahasia untuk Render Layout PDF Sebelum Didownload -->
+  <div id="pdfExportContainer" style="display:none;"></div>
 
   <script type="module" src="script.js"></script>
 </body>
