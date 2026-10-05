@@ -319,243 +319,130 @@ document.getElementById("btnExecuteJump").onclick = () => {
 };
 
 // ==========================================
-// FITUR EKSPOR LAPORAN PDF + VALIDASI CERDAS
+// FITUR EKSPOR GAMBAR (.PNG) BULAN AKTIF
 // ==========================================
-const modalExport = document.getElementById("modalExport");
-const exportStartMonth = document.getElementById("exportStartMonth");
-const exportStartYear = document.getElementById("exportStartYear");
-const exportEndMonth = document.getElementById("exportEndMonth");
-const exportEndYear = document.getElementById("exportEndYear");
-const exportValidationMsg = document.getElementById("exportValidationMsg");
-const btnExecuteExport = document.getElementById("btnExecuteExport");
-const checkOnlyActiveDays = document.getElementById("checkOnlyActiveDays");
+const modalImage = document.getElementById("modalImage");
+const imgModalMonthName = document.getElementById("imgModalMonthName");
+const btnExecuteImage = document.getElementById("btnExecuteImage");
+const btnImageText = document.getElementById("btnImageText");
 
-function populateExportDropdowns() {
-  exportStartMonth.innerHTML = "";
-  exportEndMonth.innerHTML = "";
-  exportStartYear.innerHTML = "";
-  exportEndYear.innerHTML = "";
-
-  MONTH_NAMES.forEach((m, idx) => {
-    exportStartMonth.appendChild(new Option(m, idx));
-    exportEndMonth.appendChild(new Option(m, idx));
-  });
-
-  for (let y = 2025; y <= 2030; y++) {
-    exportStartYear.appendChild(new Option(y, y));
-    exportEndYear.appendChild(new Option(y, y));
-  }
-
-  // Default: Dari bulan aktif s/d bulan aktif (1 bulan saja)
-  exportStartMonth.value = activeDate.getMonth();
-  exportStartYear.value = activeDate.getFullYear();
-  exportEndMonth.value = activeDate.getMonth();
-  exportEndYear.value = activeDate.getFullYear();
-
-  validateExportRange();
-}
-
-// LOGIKA VALIDASI: Bulan 'Dari' tidak boleh lebih baru dari 'Sampai'
-function validateExportRange() {
-  const startVal = parseInt(exportStartYear.value, 10) * 12 + parseInt(exportStartMonth.value, 10);
-  const endVal = parseInt(exportEndYear.value, 10) * 12 + parseInt(exportEndMonth.value, 10);
-
-  if (startVal > endVal) {
-    exportValidationMsg.style.display = "block";
-    btnExecuteExport.disabled = true;
-    exportStartMonth.classList.add("has-error");
-    exportStartYear.classList.add("has-error");
-  } else {
-    exportValidationMsg.style.display = "none";
-    btnExecuteExport.disabled = false;
-    exportStartMonth.classList.remove("has-error");
-    exportStartYear.classList.remove("has-error");
-  }
-}
-
-// Pasang listener validasi saat dropdown diubah
-exportStartMonth.onchange = validateExportRange;
-exportStartYear.onchange = validateExportRange;
-exportEndMonth.onchange = validateExportRange;
-exportEndYear.onchange = validateExportRange;
-
-document.getElementById("btnOpenExportModal").onclick = () => {
-  populateExportDropdowns();
-  modalExport.classList.add("active");
+document.getElementById("btnOpenImageModal").onclick = () => {
+  const monthName = MONTH_NAMES[activeDate.getMonth()];
+  const fullYear = activeDate.getFullYear();
+  imgModalMonthName.textContent = `${monthName} ${fullYear}`;
+  modalImage.classList.add("active");
 };
 
-document.getElementById("btnCancelExport").onclick = () => {
-  modalExport.classList.remove("active");
+document.getElementById("btnCancelImage").onclick = () => {
+  modalImage.classList.remove("active");
 };
 
-// EKSEKUSI PEMBUATAN PDF
-btnExecuteExport.onclick = async () => {
-  const startM = parseInt(exportStartMonth.value, 10);
-  const startY = parseInt(exportStartYear.value, 10);
-  const endM = parseInt(exportEndMonth.value, 10);
-  const endY = parseInt(exportEndYear.value, 10);
+btnExecuteImage.onclick = async () => {
+  btnImageText.textContent = "Mengambil Gambar...";
+  btnExecuteImage.disabled = true;
 
-  const startTotalMonths = startY * 12 + startM;
-  const endTotalMonths = endY * 12 + endM;
+  const monthKey = getActiveMonthKey();
+  const currentMonthData = allMonthsData[monthKey] || {};
+  const totalDays = getDaysInActiveMonth();
+  const monthName = MONTH_NAMES[activeDate.getMonth()];
+  const fullYear = activeDate.getFullYear();
 
-  if (startTotalMonths > endTotalMonths) {
-    alert("Bulan 'Dari' tidak boleh lebih baru dari bulan 'Sampai dengan'!");
-    return;
-  }
+  let mD = 0;
+  let mZ = 0;
+  let tableRowsHTML = "";
 
-  const btnText = document.getElementById("btnExportText");
-  btnText.textContent = "Memproses...";
-  btnExecuteExport.disabled = true;
+  for (let d = 1; d <= totalDays; d++) {
+    const raw = currentMonthData[d] || {};
+    const dAmt = raw.dAmount !== undefined ? raw.dAmount : (raw.amount || 10000);
+    const zAmt = raw.zAmount !== undefined ? raw.zAmount : (raw.amount || 10000);
+    const isD = Boolean(raw.d);
+    const isZ = Boolean(raw.z);
 
-  const container = document.getElementById("pdfExportContainer");
-  container.innerHTML = "";
+    if (isD) mD += dAmt;
+    if (isZ) mZ += zAmt;
+    const dailyTotal = (isD ? dAmt : 0) + (isZ ? zAmt : 0);
 
-  const onlyActive = checkOnlyActiveDays.checked;
-  let grandD = 0;
-  let grandZ = 0;
-  let monthlyBlocksHTML = "";
-
-  // Iterasi bulan yang dipilih secara aman
-  for (let mIndex = startTotalMonths; mIndex <= endTotalMonths; mIndex++) {
-    const curY = Math.floor(mIndex / 12);
-    const curM = mIndex % 12;
-    const mKey = `${curY}-${String(curM + 1).padStart(2, "0")}`;
-    const mData = allMonthsData[mKey] || {};
-    const daysInMonth = new Date(curY, curM + 1, 0).getDate();
-
-    let mTotalD = 0;
-    let mTotalZ = 0;
-    let rowsHTML = "";
-    let activeDaysCount = 0;
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const item = mData[d] || {};
-      const dAmt = item.dAmount !== undefined ? item.dAmount : (item.amount || 10000);
-      const zAmt = item.zAmount !== undefined ? item.zAmount : (item.amount || 10000);
-      const isD = Boolean(item.d);
-      const isZ = Boolean(item.z);
-
-      if (isD) mTotalD += dAmt;
-      if (isZ) mTotalZ += zAmt;
-
-      const dailySum = (isD ? dAmt : 0) + (isZ ? zAmt : 0);
-
-      // Jika user memilih hanya hari aktif, lewati hari yang bernilai 0
-      if (onlyActive && !isD && !isZ) {
-        continue;
-      }
-
-      activeDaysCount++;
-      rowsHTML += `
-        <tr>
-          <td>${d} ${MONTH_NAMES[curM].substring(0,3)}</td>
-          <td class="${isD ? 'filled' : ''}">${isD ? rupiah(dAmt) + ' (✓)' : '-'}</td>
-          <td class="${isZ ? 'filled' : ''}">${isZ ? rupiah(zAmt) + ' (✓)' : '-'}</td>
-          <td><b>${rupiah(dailySum)}</b></td>
-        </tr>
-      `;
-    }
-
-    grandD += mTotalD;
-    grandZ += mTotalZ;
-
-    // Jika bulan tersebut sama sekali belum ada setoran dan mode ringkas aktif
-    let bodyContent = "";
-    if (onlyActive && activeDaysCount === 0) {
-      bodyContent = `<div class="pdf-empty-note">Belum ada catatan setoran pada bulan ini (Rp0).</div>`;
-    } else {
-      bodyContent = `
-        <table class="pdf-table">
-          <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>Setoran Dewi</th>
-              <th>Setoran Zhian</th>
-              <th>Total Hari Ini</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHTML}
-          </tbody>
-        </table>
-      `;
-    }
-
-    monthlyBlocksHTML += `
-      <div class="pdf-month-block">
-        <div class="pdf-month-title">
-          <span>📅 ${MONTH_NAMES[curM]} ${curY}</span>
-          <span>Dewi: ${rupiah(mTotalD)} | Zhian: ${rupiah(mTotalZ)} | Subtotal: ${rupiah(mTotalD + mTotalZ)}</span>
-        </div>
-        ${bodyContent}
-      </div>
+    tableRowsHTML += `
+      <tr>
+        <td><b>${d} ${monthName.substring(0,3)}</b></td>
+        <td class="${isD ? 'filled' : ''}">${isD ? rupiah(dAmt) + ' (✓)' : '-'}</td>
+        <td class="${isZ ? 'filled' : ''}">${isZ ? rupiah(zAmt) + ' (✓)' : '-'}</td>
+        <td><b>${rupiah(dailyTotal)}</b></td>
+      </tr>
     `;
   }
 
+  const container = document.getElementById("imageCaptureContainer");
   const todayStr = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Teks Periode (Jika 1 bulan, tampilkan cukup 1 bulan)
-  const periodeText = (startTotalMonths === endTotalMonths)
-    ? `Bulan: <b>${MONTH_NAMES[startM]} ${startY}</b>`
-    : `Periode: <b>${MONTH_NAMES[startM]} ${startY}</b> s/d <b>${MONTH_NAMES[endM]} ${endY}</b>`;
-
+  // Buat Kartu Ringkasan Foto yang Rapih
   container.innerHTML = `
-    <div class="pdf-document" id="pdfDocRoot">
-      <div class="pdf-header">
-        <h2>💜 LAPORAN TABUNGAN PERNIKAHAN DEWI & ZHIAN</h2>
-        <p>${periodeText} • Dicetak pada: ${todayStr}</p>
+    <div class="img-card-wrapper" id="cardToCapture">
+      <div class="img-card-header">
+        <h2>💜 TABUNGAN DEWI & ZHIAN</h2>
+        <p>Catatan Tabungan Bulan: <b>${monthName} ${fullYear}</b></p>
       </div>
 
-      <div class="pdf-grand-summary">
-        <div class="pdf-summary-item">
+      <div class="img-summary-grid">
+        <div class="img-summary-box">
           <strong>TOTAL SETORAN DEWI</strong>
-          <span>${rupiah(grandD)}</span>
+          <span>${rupiah(mD)}</span>
         </div>
-        <div class="pdf-summary-item">
+        <div class="img-summary-box">
           <strong>TOTAL SETORAN ZHIAN</strong>
-          <span>${rupiah(grandZ)}</span>
+          <span>${rupiah(mZ)}</span>
         </div>
-        <div class="pdf-summary-item highlight">
-          <strong>GRAND TOTAL BERDUA</strong>
-          <span>${rupiah(grandD + grandZ)}</span>
+        <div class="img-summary-box highlight">
+          <strong>TOTAL TERKUMPUL BULAN INI</strong>
+          <span>${rupiah(mD + mZ)}</span>
         </div>
       </div>
 
-      ${monthlyBlocksHTML}
+      <table class="img-table">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Dewi</th>
+            <th>Zhian</th>
+            <th>Total Harian</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRowsHTML}
+        </tbody>
+      </table>
 
-      <div class="pdf-footer">
-        Dokumen resmi Sistem Tabungan Pernikahan Dewi & Zhian 💕
+      <div class="img-card-footer">
+        Disimpan pada: ${todayStr} • Sistem Catatan Pernikahan Dewi & Zhian 💕
       </div>
     </div>
   `;
 
-  // Berikan jeda 250 milidetik agar font & layout ter-render sempurna di DOM
-  await new Promise((resolve) => setTimeout(resolve, 250));
-
-  const filenameRange = (startTotalMonths === endTotalMonths)
-    ? `${MONTH_NAMES[startM]}_${startY}`
-    : `${MONTH_NAMES[startM]}_${startY}_sd_${MONTH_NAMES[endM]}_${endY}`;
-
-  const opt = {
-    margin: [10, 10, 10, 10],
-    filename: `Laporan_Tabungan_DZ_${filenameRange}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['css', 'legacy'] }
-  };
+  // Berikan waktu sejenak agar browser memuat layout kartu
+  await new Promise(res => setTimeout(res, 150));
 
   try {
-    const element = document.getElementById("pdfDocRoot");
-    await html2pdf().set(opt).from(element).save();
+    const cardEl = document.getElementById("cardToCapture");
+    const canvas = await html2canvas(cardEl, {
+      scale: 2, // Resolusi tinggi (Retina/HD)
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    });
+
+    // Otomatis Download Gambar
+    const imageURL = canvas.toDataURL("image/png");
+    const downloadLink = document.createElement("a");
+    downloadLink.download = `Tabungan_DZ_${monthName}_${fullYear}.png`;
+    downloadLink.href = imageURL;
+    downloadLink.click();
   } catch (err) {
-    console.error("Gagal cetak PDF:", err);
-    alert("Gagal men-generate PDF. Coba kembali.");
+    console.error("Gagal mengunduh gambar:", err);
+    alert("Terjadi kendala saat membuat gambar. Silakan coba kembali.");
   } finally {
     container.innerHTML = "";
-    btnText.textContent = "Unduh PDF";
-    btnExecuteExport.disabled = false;
-    modalExport.classList.remove("active");
+    btnImageText.textContent = "Unduh Foto";
+    btnExecuteImage.disabled = false;
+    modalImage.classList.remove("active");
   }
 };
 
