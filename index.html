@@ -6,7 +6,7 @@
   <title>Tabungan Pernikahan Dewi & Zhian</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Library html2pdf via CDN untuk membuat file PDF langsung di browser -->
+  <!-- Library html2pdf CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="modal-overlay" id="modalExport">
     <div class="modal-card">
       <h3>📄 Ekspor Laporan PDF</h3>
-      <p>Tentukan rentang bulan tabungan yang ingin dicetak ke dalam file PDF:</p>
+      <p>Tentukan rentang bulan tabungan yang ingin dicetak:</p>
       
       <div class="export-range-group">
         <label>Dari Bulan:</label>
@@ -140,6 +140,19 @@
         <div class="jump-selects">
           <select id="exportEndMonth" class="jump-dropdown"></select>
           <select id="exportEndYear" class="jump-dropdown"></select>
+        </div>
+
+        <!-- Validasi Error Pesan -->
+        <div id="exportValidationMsg" class="validation-error-box" style="display:none;">
+          ⚠️ Bulan "Dari" tidak boleh lebih baru dari bulan "Sampai"!
+        </div>
+
+        <!-- Opsi Ringkas Agar Dokumen Rapi & Tidak Belasan Halaman -->
+        <div class="export-option-box">
+          <label class="checkbox-label">
+            <input type="checkbox" id="checkOnlyActiveDays" checked>
+            <span>Hanya cetak tanggal yang memiliki setoran (Lebih rapi & hemat halaman)</span>
+          </label>
         </div>
       </div>
 
@@ -189,8 +202,8 @@
     </div>
   </div>
 
-  <!-- Container Rahasia untuk Render Layout PDF Sebelum Didownload -->
-  <div id="pdfExportContainer" style="display:none;"></div>
+  <!-- Container Render PDF (Menggunakan posisi off-screen agar tidak blank) -->
+  <div id="pdfExportContainer" class="pdf-offscreen-render"></div>
 
   <script type="module" src="script.js"></script>
 </body>
