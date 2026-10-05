@@ -18,10 +18,16 @@
       </div>
     </header>
 
-    <!-- Navigasi Ganti Bulan -->
+    <!-- Navigasi Ganti Bulan + Fitur Klik Cepat -->
     <nav class="month-navigator">
       <button class="nav-btn" id="prevMonth" aria-label="Bulan Sebelumnya">❮</button>
-      <div class="month-title" id="currentMonthLabel">Oktober 2026</div>
+      
+      <!-- Klik judul ini untuk langsung lompat ke tahun/bulan manapun -->
+      <div class="month-title clickable" id="btnOpenJumpModal" title="Klik untuk pilih bulan & tahun">
+        <span id="currentMonthLabel">Oktober 2026</span>
+        <span class="dropdown-icon">▾</span>
+      </div>
+
       <button class="nav-btn" id="nextMonth" aria-label="Bulan Berikutnya">❯</button>
     </nav>
 
@@ -71,7 +77,7 @@
       </div>
     </section>
 
-    <!-- Tabel Daftar Setoran Harian -->
+    <!-- Tabel Daftar Setoran Harian (dengan Animasi Slide) -->
     <main class="table-container">
       <div class="row head">
         <div>Tanggal</div>
@@ -84,7 +90,7 @@
 
     <!-- Footer & Aksi -->
     <footer class="footer">
-      <p class="swipe-hint">💡 Tips: Geser layar ke kiri / kanan untuk mengganti bulan.</p>
+      <p class="swipe-hint">💡 Tips: Usap layar kanan/kiri atau ketuk nama bulan untuk mencari.</p>
       <button class="btn-action-reset" id="btnOpenResetMenu">⚙️ Opsi Pengaturan & Reset Data</button>
       <div class="dev-watermark">
         Dual-Tier Realtime Sync Engine • Dev Edition
@@ -92,7 +98,26 @@
     </footer>
   </div>
 
-  <!-- MODAL 1: Pilihan Lingkup Reset -->
+  <!-- FLOATING TOAST (Penanda Mengambang Saat Bulan Berganti) -->
+  <div class="month-toast" id="monthToast">📅 Oktober 2026</div>
+
+  <!-- MODAL: LOMPAT KE BULAN / TAHUN CEPAT -->
+  <div class="modal-overlay" id="modalJump">
+    <div class="modal-card">
+      <h3>📅 Pilih Bulan & Tahun</h3>
+      <p>Lompat ke bulan catatan tanpa harus menggeser satu per satu:</p>
+      <div class="jump-selects">
+        <select id="jumpMonthSelect" class="jump-dropdown"></select>
+        <select id="jumpYearSelect" class="jump-dropdown"></select>
+      </div>
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button class="btn-cancel" id="btnCancelJump">Batal</button>
+        <button class="btn-confirm" id="btnExecuteJump" style="background:#6a11cb;">Terapkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Pilihan Lingkup Reset -->
   <div class="modal-overlay" id="modalResetMenu">
     <div class="modal-card">
       <h3>Pilih Tindakan Reset</h3>
@@ -109,13 +134,12 @@
     </div>
   </div>
 
-  <!-- MODAL 2: Dialog Konfirmasi & Validasi Anti Error -->
+  <!-- MODAL: Dialog Konfirmasi & Validasi Anti Error -->
   <div class="modal-overlay" id="modalConfirm">
     <div class="modal-card">
       <h3 id="confirmTitle" class="danger-text">Konfirmasi Tindakan</h3>
       <p id="confirmDesc">Apakah Anda yakin?</p>
       
-      <!-- Input Verifikasi Ketik Kata "HAPUS" -->
       <div id="typedValidationArea" style="display:none; margin-bottom:12px;">
         <label for="validationInput" style="font-size:12px; display:block; margin-bottom:6px; color:#555;">
           Ketik kata <b>HAPUS</b> dengan huruf kapital:
@@ -130,7 +154,6 @@
     </div>
   </div>
 
-  <!-- Script JS (Modular) -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
