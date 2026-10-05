@@ -205,7 +205,7 @@ body {
 .grand-total strong { color: #d4b3f9; }
 .grand-total span { color: #ffffff; font-size: 17px; }
 
-/* TABEL: DUAL INDEPENDENT ROWS (DEWI & ZHIAN) */
+/* Tabel Harian */
 .table-container {
   background: white;
   border-radius: 20px;
@@ -253,7 +253,7 @@ body {
   display: block;
 }
 
-/* Kotak Kontrol Masing-Masing */
+/* Kotak Kontrol Baris */
 .person-control {
   display: flex;
   align-items: center;
@@ -350,7 +350,7 @@ button.user-btn-mini.done {
   flex-wrap: wrap;
 }
 
-.btn-action-export {
+.btn-action-image {
   background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
   color: white;
   border: none;
@@ -404,42 +404,16 @@ button.user-btn-mini.done {
 .modal-card h3 { margin: 0 0 6px; font-size: 16px; color: #23162f; }
 .modal-card p { margin: 0 0 14px; font-size: 12px; color: #6b5c77; line-height: 1.4; }
 
-.export-range-group { text-align: left; margin: 10px 0; }
-.export-range-group label { font-size: 11px; font-weight: 700; color: #493b54; margin-bottom: 4px; display: block; }
-
-.validation-error-box {
-  background: #feebeb;
-  color: #c52222;
-  border: 1px solid #f7b2b2;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 700;
-  margin-top: 8px;
-  text-align: center;
-}
-
-.export-option-box {
-  margin-top: 12px;
-  background: #fdf8ff;
-  border: 1px solid #ebdff2;
+.info-alert-box {
+  background: #f0f4ff;
+  border: 1px solid #bcd2ff;
+  color: #1748a6;
   border-radius: 10px;
-  padding: 8px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  padding: 10px;
   font-size: 11px;
-  font-weight: 600;
-  color: #493b54;
-  cursor: pointer;
-}
-
-.checkbox-label input {
-  cursor: pointer;
-  accent-color: #6a11cb;
+  line-height: 1.4;
+  text-align: left;
+  margin-bottom: 12px;
 }
 
 .jump-selects { display: flex; gap: 8px; }
@@ -453,10 +427,6 @@ button.user-btn-mini.done {
   color: #3b1b59;
   background: #fdfafd;
   outline: none;
-}
-.jump-dropdown.has-error {
-  border-color: #e5383b;
-  background: #fff8f8;
 }
 
 .menu-action-list { display: flex; flex-direction: column; gap: 8px; }
@@ -499,102 +469,103 @@ button.user-btn-mini.done {
 }
 .btn-cancel { background: #ede8f2; color: #564765; }
 .btn-confirm { background: #e5383b; color: white; }
-.btn-confirm:disabled { background: #ccc !important; cursor: not-allowed; }
 .danger-text { color: #d90429 !important; }
 
 /* ========================================================
-   RENDER ENGINE PDF (OFF-SCREEN AGAR TIDAK BLANK)
+   TEMPLATE KARTU FOTO RESI HD (UNTUK HASIL GAMBAR .PNG)
    ======================================================== */
-.pdf-offscreen-render {
+.image-capture-offscreen {
   position: fixed;
   left: -9999px;
   top: 0;
-  width: 780px; /* Standar Lebar Konten A4 96 DPI */
+  width: 440px; /* Lebar pas untuk foto smartphone/WhatsApp */
   background: #ffffff;
-  z-index: -100;
+  z-index: -999;
 }
 
-.pdf-document {
-  font-family: Arial, Helvetica, sans-serif;
-  color: #2b2233;
-  padding: 20px;
+.img-card-wrapper {
   background: #ffffff;
+  padding: 18px;
+  border-radius: 20px;
+  border: 2px solid #ebdff2;
 }
 
-.pdf-header {
+.img-card-header {
   text-align: center;
-  border-bottom: 2px solid #6a11cb;
-  padding-bottom: 10px;
-  margin-bottom: 14px;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
 }
-.pdf-header h2 { margin: 0; color: #6a11cb; font-size: 18px; font-weight: 900; }
-.pdf-header p { margin: 4px 0 0; font-size: 11px; color: #555; }
+.img-card-header h2 { margin: 0 0 4px; font-size: 17px; font-weight: 900; }
+.img-card-header p { margin: 0; font-size: 12px; opacity: 0.9; }
 
-.pdf-grand-summary {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+.img-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
 }
-.pdf-summary-item {
-  flex: 1;
-  background: #f6f1fc;
-  border: 1px solid #e1d3f5;
-  border-radius: 8px;
-  padding: 8px 10px;
+.img-summary-box {
+  background: #fbf7fd;
+  border: 1px solid #ebdff2;
+  border-radius: 12px;
+  padding: 8px;
   text-align: center;
 }
-.pdf-summary-item strong { display: block; font-size: 10px; color: #6a11cb; margin-bottom: 3px; }
-.pdf-summary-item span { font-size: 14px; font-weight: 800; color: #1e112d; }
-.pdf-summary-item.highlight { background: #2b173e; color: #fff; }
-.pdf-summary-item.highlight strong { color: #d6bbf7; }
-.pdf-summary-item.highlight span { color: #ffffff; }
-
-.pdf-month-block {
-  margin-bottom: 16px;
+.img-summary-box strong { display: block; font-size: 10px; color: #6a11cb; margin-bottom: 2px; }
+.img-summary-box span { font-size: 13px; font-weight: 800; color: #21132b; }
+.img-summary-box.highlight {
+  grid-column: 1 / -1;
+  background: #2b173e;
+  border-color: #2b173e;
 }
+.img-summary-box.highlight strong { color: #d6bbf7; }
+.img-summary-box.highlight span { color: #ffffff; font-size: 15px; }
 
-.pdf-month-title {
-  background: #f0e6fa;
-  color: #4a1975;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 5px 8px;
-  border-radius: 6px;
-  margin-bottom: 5px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.pdf-empty-note {
-  font-size: 10px;
-  color: #88749a;
-  font-style: italic;
-  padding: 6px 8px;
-  background: #faf7fd;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-
-.pdf-table {
+.img-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 9px;
-  margin-bottom: 8px;
+  font-size: 10px;
+  margin-bottom: 12px;
 }
-.pdf-table th, .pdf-table td {
-  border: 1px solid #e4d7ee;
-  padding: 4px 6px;
+.img-table th, .img-table td {
+  border: 1px solid #ebdff2;
+  padding: 5px 6px;
   text-align: center;
 }
-.pdf-table th { background: #f3ebfa; color: #492864; font-weight: 800; }
-.pdf-table tr { page-break-inside: avoid; } /* Hindari baris terbelah */
-.pdf-table td.filled { background: #eafaf0; font-weight: 700; color: #156d33; }
+.img-table th { background: #f3ebfa; color: #492864; font-weight: 800; }
+.img-table td.filled { background: #eafaf0; font-weight: 800; color: #166a33; }
 
-.pdf-footer {
+.img-card-footer {
   text-align: center;
   font-size: 9px;
-  color: #777;
-  border-top: 1px solid #ebdff2;
+  color: #897897;
+  border-top: 1px solid #eee5f5;
   padding-top: 8px;
-  margin-top: 16px;
+}
+
+/* Tampilan Pratinjau Gambar di Modal */
+.modal-preview-card {
+  max-width: 380px !important;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-scroll-area {
+  max-height: 48vh;
+  overflow-y: auto;
+  border: 2px solid #ebdff2;
+  border-radius: 14px;
+  margin: 6px 0;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+  background: #fbf9fd;
+}
+
+.preview-scroll-area img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
