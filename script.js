@@ -319,33 +319,33 @@ document.getElementById("btnExecuteJump").onclick = () => {
 };
 
 // ==========================================
-// FITUR EKSPOR GAMBAR (.PNG) BULAN AKTIF
+// FITUR EKSPOR GAMBAR DENGAN PRATINJAU (PREVIEW)
 // ==========================================
 const modalImage = document.getElementById("modalImage");
 const imgModalMonthName = document.getElementById("imgModalMonthName");
 const btnExecuteImage = document.getElementById("btnExecuteImage");
-const btnImageText = document.getElementById("btnImageText");
+const previewLoadingText = document.getElementById("previewLoadingText");
+const imagePreviewBox = document.getElementById("imagePreviewBox");
+const imagePreviewImg = document.getElementById("imagePreviewImg");
 
-document.getElementById("btnOpenImageModal").onclick = () => {
+let cachedImageURL = null;
+let cachedFileName = "";
+
+// 1. Saat tombol footer diklik: Buka Modal & Buat Pratinjau
+document.getElementById("btnOpenImageModal").onclick = async () => {
   const monthName = MONTH_NAMES[activeDate.getMonth()];
   const fullYear = activeDate.getFullYear();
   imgModalMonthName.textContent = `${monthName} ${fullYear}`;
-  modalImage.classList.add("active");
-};
 
-document.getElementById("btnCancelImage").onclick = () => {
-  modalImage.classList.remove("active");
-};
-
-btnExecuteImage.onclick = async () => {
-  btnImageText.textContent = "Mengambil Gambar...";
+  // Reset tampilan modal ke mode loading
+  previewLoadingText.style.display = "block";
+  imagePreviewBox.style.display = "none";
   btnExecuteImage.disabled = true;
+  modalImage.classList.add("active");
 
   const monthKey = getActiveMonthKey();
   const currentMonthData = allMonthsData[monthKey] || {};
   const totalDays = getDaysInActiveMonth();
-  const monthName = MONTH_NAMES[activeDate.getMonth()];
-  const fullYear = activeDate.getFullYear();
 
   let mD = 0;
   let mZ = 0;
@@ -375,7 +375,6 @@ btnExecuteImage.onclick = async () => {
   const container = document.getElementById("imageCaptureContainer");
   const todayStr = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Buat Kartu Ringkasan Foto yang Rapih
   container.innerHTML = `
     <div class="img-card-wrapper" id="cardToCapture">
       <div class="img-card-header">
@@ -418,32 +417,46 @@ btnExecuteImage.onclick = async () => {
     </div>
   `;
 
-  // Berikan waktu sejenak agar browser memuat layout kartu
   await new Promise(res => setTimeout(res, 150));
 
   try {
     const cardEl = document.getElementById("cardToCapture");
     const canvas = await html2canvas(cardEl, {
-      scale: 2, // Resolusi tinggi (Retina/HD)
+      scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff"
     });
 
-    // Otomatis Download Gambar
-    const imageURL = canvas.toDataURL("image/png");
-    const downloadLink = document.createElement("a");
-    downloadLink.download = `Tabungan_DZ_${monthName}_${fullYear}.png`;
-    downloadLink.href = imageURL;
-    downloadLink.click();
+    cachedImageURL = canvas.toDataURL("image/png");
+    cachedFileName = `Tabungan_DZ_${monthName}_${fullYear}.png`;
+
+    // Tampilkan gambar ke pratinjau modal
+    imagePreviewImg.src = cachedImageURL;
+    previewLoadingText.style.display = "none";
+    imagePreviewBox.style.display = "block";
+    btnExecuteImage.disabled = false;
   } catch (err) {
-    console.error("Gagal mengunduh gambar:", err);
-    alert("Terjadi kendala saat membuat gambar. Silakan coba kembali.");
+    console.error("Gagal membuat pratinjau:", err);
+    previewLoadingText.textContent = "❌ Gagal memuat pratinjau.";
   } finally {
     container.innerHTML = "";
-    btnImageText.textContent = "Unduh Foto";
-    btnExecuteImage.disabled = false;
-    modalImage.classList.remove("active");
   }
+};
+
+document.getElementById("btnCancelImage").onclick = () => {
+  modalImage.classList.remove("active");
+};
+
+// 2. Saat tombol "Unduh Foto" diklik: Langsung simpan gambar yang sudah dipreview
+btnExecuteImage.onclick = () => {
+  if (!cachedImageURL) return;
+
+  const downloadLink = document.createElement("a");
+  downloadLink.download = cachedFileName;
+  downloadLink.href = cachedImageURL;
+  downloadLink.click();
+
+  modalImage.classList.remove("active");
 };
 
 // ==========================================
