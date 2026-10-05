@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabungan Pernikahan Dewi & Zhian</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app" id="swipeArea">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-tag">PENCATATAN TABUNGAN PERNIKAHAN</div>
+      <h1>💜 DEWI & ZHIAN</h1>
+      <div class="status-badge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Menghubungkan Database...</span>
+      </div>
+    </header>
+
+    <!-- Navigasi Ganti Bulan -->
+    <nav class="month-navigator">
+      <button class="nav-btn" id="prevMonth" aria-label="Bulan Sebelumnya">❮</button>
+      <div class="month-title" id="currentMonthLabel">Oktober 2026</div>
+      <button class="nav-btn" id="nextMonth" aria-label="Bulan Berikutnya">❯</button>
+    </nav>
+
+    <!-- Rincian Finansial (Dual Summary) -->
+    <section class="summary-wrapper">
+      <!-- 1. Subtotal Bulan yang Sedang Dibuka -->
+      <div class="summary-box">
+        <div class="summary-header">
+          <span class="badge-mini">BULAN INI</span>
+          <span id="labelSummaryMonth">Okt 2026</span>
+        </div>
+        <div class="summary-grid">
+          <div class="card mini">
+            <strong>Dewi</strong>
+            <span id="monthDewi">Rp0</span>
+          </div>
+          <div class="card mini">
+            <strong>Zhian</strong>
+            <span id="monthZhian">Rp0</span>
+          </div>
+          <div class="card mini total-card">
+            <strong>Total Bulan Ini</strong>
+            <span id="monthTotal">Rp0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Akumulasi Total Seluruh Bulan -->
+      <div class="summary-box all-time">
+        <div class="summary-header">
+          <span class="badge-mini dark">TOTAL KESELURUHAN (ALL-TIME)</span>
+        </div>
+        <div class="summary-grid">
+          <div class="card mini">
+            <strong>Total Dewi</strong>
+            <span id="allDewi">Rp0</span>
+          </div>
+          <div class="card mini">
+            <strong>Total Zhian</strong>
+            <span id="allZhian">Rp0</span>
+          </div>
+          <div class="card mini grand-total">
+            <strong>Grand Total Berdua</strong>
+            <span id="grandTotal">Rp0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabel Daftar Setoran Harian -->
+    <main class="table-container">
+      <div class="row head">
+        <div>Tanggal</div>
+        <div>Nominal Setor</div>
+        <div class="center">D</div>
+        <div class="center">Z</div>
+      </div>
+      <div id="rows"></div>
+    </main>
+
+    <!-- Footer & Aksi -->
+    <footer class="footer">
+      <p class="swipe-hint">💡 Tips: Geser layar ke kiri / kanan untuk mengganti bulan.</p>
+      <button class="btn-action-reset" id="btnOpenResetMenu">⚙️ Opsi Pengaturan & Reset Data</button>
+      <div class="dev-watermark">
+        Dual-Tier Realtime Sync Engine • Dev Edition
+      </div>
+    </footer>
+  </div>
+
+  <!-- MODAL 1: Pilihan Lingkup Reset -->
+  <div class="modal-overlay" id="modalResetMenu">
+    <div class="modal-card">
+      <h3>Pilih Tindakan Reset</h3>
+      <p>Pilih cakupan data yang ingin Anda hapus/bersihkan:</p>
+      <div class="menu-action-list">
+        <button class="btn-choice warning" id="btnChoiceMonth">
+          🗑️ Reset Data Bulan Ini Saja (<span id="spanSelectedMonth"></span>)
+        </button>
+        <button class="btn-choice danger" id="btnChoiceAll">
+          ⚠️ Reset SEMUA Bulan (Hapus Total)
+        </button>
+        <button class="btn-choice cancel" id="btnCloseResetMenu">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Dialog Konfirmasi & Validasi Anti Error -->
+  <div class="modal-overlay" id="modalConfirm">
+    <div class="modal-card">
+      <h3 id="confirmTitle" class="danger-text">Konfirmasi Tindakan</h3>
+      <p id="confirmDesc">Apakah Anda yakin?</p>
+      
+      <!-- Input Verifikasi Ketik Kata "HAPUS" -->
+      <div id="typedValidationArea" style="display:none; margin-bottom:12px;">
+        <label for="validationInput" style="font-size:12px; display:block; margin-bottom:6px; color:#555;">
+          Ketik kata <b>HAPUS</b> dengan huruf kapital:
+        </label>
+        <input type="text" id="validationInput" class="input-verify" placeholder="Ketik HAPUS" autocomplete="off">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelConfirm">Batal</button>
+        <button class="btn-confirm" id="btnExecuteConfirm">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script JS (Modular) -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
