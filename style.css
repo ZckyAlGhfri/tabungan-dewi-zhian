@@ -373,8 +373,40 @@ button.user-btn-mini.done {
   cursor: pointer;
 }
 
-.dev-watermark { margin-top: 24px; font-size: 10px; color: #9d8fa7; }
+/* Styling Watermark Developer (Dual Links) */
+.dev-watermark {
+  margin-top: 24px;
+  font-size: 11px;
+  color: #837191;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
 
+.wm-links-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-link {
+  color: #6a11cb;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 11px;
+  transition: all 0.15s ease;
+}
+
+.wm-link:hover, .wm-link:active {
+  color: #2575fc;
+  text-decoration: underline;
+}
+
+.wm-separator {
+  color: #c7bad0;
+  font-size: 10px;
+}
 /* Modals */
 .modal-overlay {
   position: fixed;
@@ -390,6 +422,7 @@ button.user-btn-mini.done {
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
+
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
 .modal-card {
