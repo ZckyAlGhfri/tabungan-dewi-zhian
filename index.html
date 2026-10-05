@@ -19,6 +19,9 @@
         <span class="status-dot" id="statusDot"></span>
         <span id="statusText">Menghubungkan Database...</span>
       </div>
+      <div style="margin-top: 8px;">
+        <button class="btn-guide-pill" id="btnOpenGuideModal">📖 Panduan Penggunaan</button>
+      </div>
     </header>
 
     <!-- Navigasi Ganti Bulan -->
@@ -187,6 +190,78 @@
 
   <!-- Container Off-Screen untuk Template Kartu Foto -->
   <div id="imageCaptureContainer" class="image-capture-offscreen"></div>
+
+  <!-- MODAL: MODUL PANDUAN PENGGUNAAN LENGKAP -->
+  <div class="modal-overlay" id="modalGuide">
+    <div class="modal-card modal-guide-card">
+      <div class="guide-header">
+        <h3>📖 Modul & Petunjuk Penggunaan</h3>
+        <p>Panduan lengkap fitur Tabungan Dewi & Zhian</p>
+      </div>
+
+      <div class="guide-content-scroll">
+        <!-- Poin 1 -->
+        <div class="guide-item">
+          <div class="guide-icon">🌸⚡</div>
+          <div class="guide-text">
+            <strong>1. Menabung Mandiri (Bebas Bentrok)</strong>
+            <p>Setiap orang memiliki dropdown nominal dan tombolnya sendiri. Dewi bisa menabung Rp10.000 dan Zhian Rp50.000 di hari yang sama. Klik tombol <b>D</b> atau <b>Z</b> sampai berwarna hijau (✓) untuk mencatat setoran.</p>
+          </div>
+        </div>
+
+        <!-- Poin 2 -->
+        <div class="guide-item">
+          <div class="guide-icon">🔄</div>
+          <div class="guide-text">
+            <strong>2. Sinkronisasi Realtime Otomatis</strong>
+            <p>Semua perubahan langsung tersimpan ke Cloud secara instan. Jika Dewi mencentang di HP-nya, layar HP Zhian akan otomatis terupdate tanpa perlu refresh atau menekan tombol simpan.</p>
+          </div>
+        </div>
+
+        <!-- Poin 3 -->
+        <div class="guide-item">
+          <div class="guide-icon">📅</div>
+          <div class="guide-text">
+            <strong>3. Ganti Bulan & Swipe Layar</strong>
+            <p>Usap (swipe) layar ke kanan/kiri untuk berpindah bulan, atau <b>ketuk judul bulan (▾)</b> di atas untuk langsung memilih tahun (misal langsung melompat ke tahun 2027).</p>
+          </div>
+        </div>
+
+        <!-- Poin 4 -->
+        <div class="guide-item">
+          <div class="guide-icon">📊</div>
+          <div class="guide-text">
+            <strong>4. Dual Ringkasan Finansial</strong>
+            <p>Bagian atas menampilkan dua data: <b>Bulan Ini</b> (subtotal bulan yang sedang dibuka) dan <b>Total Keseluruhan</b> (akumulasi seluruh tabungan dari awal sampai akhir).</p>
+          </div>
+        </div>
+
+        <!-- Poin 5 -->
+        <div class="guide-item">
+          <div class="guide-icon">📸</div>
+          <div class="guide-text">
+            <strong>5. Ekspor Gambar (.PNG)</strong>
+            <p>Gunakan tombol <b>📸 Simpan Gambar</b> di bawah untuk mengunduh rekap foto bulan yang sedang dibuka. Sebelum mendownload, Anda bisa melihat pratinjaunya terlebih dahulu.</p>
+          </div>
+        </div>
+
+        <!-- Poin 6 -->
+        <div class="guide-item">
+          <div class="guide-icon">🔒</div>
+          <div class="guide-text">
+            <strong>6. Fitur Reset Aman</strong>
+            <p>Tersedia dua opsi reset: <i>Reset Bulan Ini Saja</i> atau <i>Reset Total</i>. Reset total dilindungi verifikasi ketik kata <b>HAPUS</b> agar data tidak terhapus karena salah pencet.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button class="btn-confirm" id="btnCloseGuide" style="background:#6a11cb; width: 100%;">
+          Mengerti & Tutup
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="script.js"></script>
 </body>
