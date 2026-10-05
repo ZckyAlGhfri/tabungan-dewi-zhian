@@ -11,15 +11,13 @@ const firebaseConfig = {
   appId: "1:541421779082:web:eb36944c2a74304c70d573"
 };
 
-// Inisialisasi Firebase & Dokumen Database
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-// Menyimpan seluruh data multi-bulan dalam 1 dokumen tunggal (hemat kuota)
 const savingsDocRef = doc(db, "tabungan", "data_pernikahan");
 
 // State Global
-let allMonthsData = {}; // Format: { "2026-10": { "1": { amount, d, z } } }
-let activeDate = new Date(2026, 9, 1); // Default ke target Oktober 2026 (Month 0-indexed: 9 = Oktober)
+let allMonthsData = {};
+let activeDate = new Date(2026, 9, 1); // Default ke Oktober 2026
 
 const MONTH_NAMES = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -40,7 +38,6 @@ function getDaysInActiveMonth() {
   return new Date(activeDate.getFullYear(), activeDate.getMonth() + 1, 0).getDate();
 }
 
-// Update Badge Status di Header
 function setStatus(isOnline, text) {
   const dot = document.getElementById("statusDot");
   const label = document.getElementById("statusText");
@@ -55,13 +52,33 @@ function setStatus(isOnline, text) {
   }
 }
 
-// Render UI (Kalender, Tabel, dan Dual Summary)
-function render() {
+// Fitur Getar Halus (Haptic Feedback) di Smartphone
+function triggerHaptic() {
+  if (navigator.vibrate) {
+    navigator.vibrate(35); // getar 35 milidetik
+  }
+}
+
+// Fitur Toast Mengambang (Pemberitahuan Ganti Bulan di Bawah Layar)
+let toastTimer = null;
+function showMonthToast(monthName, year) {
+  const toast = document.getElementById("monthToast");
+  toast.textContent = `📅 ${monthName} ${year}`;
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1600);
+}
+
+// Render UI
+function render(slideDirection = null) {
   const monthKey = getActiveMonthKey();
   const currentMonthData = allMonthsData[monthKey] || {};
   const totalDays = getDaysInActiveMonth();
   
-  // 1. Perbarui Label Navigator
+  // 1. Label Navigator
   const monthName = MONTH_NAMES[activeDate.getMonth()];
   const fullYear = activeDate.getFullYear();
   document.getElementById("currentMonthLabel").textContent = `${monthName} ${fullYear}`;
@@ -72,6 +89,15 @@ function render() {
   const rowsContainer = document.getElementById("rows");
   rowsContainer.innerHTML = "";
 
+  // Berikan animasi geser jika ada pergantian bulan
+  if (slideDirection === "next") {
+    rowsContainer.className = "slide-next";
+  } else if (slideDirection === "prev") {
+    rowsContainer.className = "slide-prev";
+  } else {
+    rowsContainer.className = "";
+  }
+
   let monthD = 0;
   let monthZ = 0;
 
@@ -80,12 +106,12 @@ function render() {
     const r = document.createElement("div");
     r.className = "row";
 
-    // Kolom Tanggal
+    // Tanggal
     const dateDiv = document.createElement("div");
     dateDiv.className = "date-col";
     dateDiv.textContent = `${day} ${monthName.substring(0,3)}`;
 
-    // Nominal Dropdown (10rb - 100rb)
+    // Nominal Dropdown
     const nomWrap = document.createElement("div");
     const select = document.createElement("select");
     select.className = "money-select";
@@ -129,12 +155,12 @@ function render() {
     rowsContainer.appendChild(r);
   }
 
-  // 3. Tampilkan Subtotal Bulan Ini
+  // 3. Subtotal Bulan Ini
   document.getElementById("monthDewi").textContent = rupiah(monthD);
   document.getElementById("monthZhian").textContent = rupiah(monthZ);
   document.getElementById("monthTotal").textContent = rupiah(monthD + monthZ);
 
-  // 4. Hitung & Tampilkan Akumulasi Seluruh Bulan (All-Time)
+  // 4. Akumulasi Total Seluruh Bulan
   let grandTotalD = 0;
   let grandTotalZ = 0;
 
@@ -153,7 +179,7 @@ function render() {
   document.getElementById("grandTotal").textContent = rupiah(grandTotalD + grandTotalZ);
 }
 
-// Simpan Perubahan ke Firestore
+// Simpan Modifikasi ke Firestore
 async function updateDayData(day, changes) {
   const mKey = getActiveMonthKey();
   if (!allMonthsData[mKey]) allMonthsData[mKey] = {};
@@ -161,7 +187,7 @@ async function updateDayData(day, changes) {
   const currentDay = allMonthsData[mKey][day] || { amount: 10000, d: false, z: false };
   allMonthsData[mKey][day] = { ...currentDay, ...changes };
 
-  render(); // Optimistic UI: langsung berubah tanpa nunggu respon server
+  render(); // Optimistic UI
 
   try {
     await setDoc(savingsDocRef, {
@@ -175,7 +201,7 @@ async function updateDayData(day, changes) {
   }
 }
 
-// Realtime Listener dari Firestore
+// Realtime Listener
 onSnapshot(savingsDocRef, (docSnap) => {
   setStatus(true, "🟢 Sinkron Realtime Aktif");
   if (docSnap.exists()) {
@@ -190,17 +216,22 @@ onSnapshot(savingsDocRef, (docSnap) => {
 });
 
 // ==========================================
-// NAVIGASI BULAN & SWIPE GESTURE
+// NAVIGASI BULAN, ANIMASI & GESTURE SWIPE
 // ==========================================
 function changeMonth(delta) {
   activeDate.setMonth(activeDate.getMonth() + delta);
-  render();
+  triggerHaptic();
+  
+  const dir = delta > 0 ? "next" : "prev";
+  render(dir);
+
+  showMonthToast(MONTH_NAMES[activeDate.getMonth()], activeDate.getFullYear());
 }
 
 document.getElementById("prevMonth").onclick = () => changeMonth(-1);
 document.getElementById("nextMonth").onclick = () => changeMonth(1);
 
-// Gesture Swipe di Layar HP
+// Gesture Swipe Touch
 let touchStartX = 0;
 let touchStartY = 0;
 const swipeArea = document.getElementById("swipeArea");
@@ -214,15 +245,61 @@ swipeArea.addEventListener("touchend", (e) => {
   const diffX = e.changedTouches[0].screenX - touchStartX;
   const diffY = e.changedTouches[0].screenY - touchStartY;
 
-  // Deteksi pergerakan horizontal dominan (> 60px)
   if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX < 0) {
-      changeMonth(1); // Geser ke kiri -> Bulan maju
+      changeMonth(1); // Swipe kiri -> bulan berikutnya
     } else {
-      changeMonth(-1); // Geser ke kanan -> Bulan mundur
+      changeMonth(-1); // Swipe kanan -> bulan sebelumnya
     }
   }
 }, { passive: true });
+
+// ==========================================
+// FITUR LOMPAT BULAN / TAHUN CEPAT (QUICK JUMP)
+// ==========================================
+const modalJump = document.getElementById("modalJump");
+const jumpMonthSelect = document.getElementById("jumpMonthSelect");
+const jumpYearSelect = document.getElementById("jumpYearSelect");
+
+// Isi pilihan dropdown bulan (Jan - Des)
+MONTH_NAMES.forEach((m, idx) => {
+  const opt = document.createElement("option");
+  opt.value = idx;
+  opt.textContent = m;
+  jumpMonthSelect.appendChild(opt);
+});
+
+// Isi pilihan dropdown tahun (2025 s.d 2030)
+for (let y = 2025; y <= 2030; y++) {
+  const opt = document.createElement("option");
+  opt.value = y;
+  opt.textContent = y;
+  jumpYearSelect.appendChild(opt);
+}
+
+// Buka Modal Jump saat Judul Bulan diklik
+document.getElementById("btnOpenJumpModal").onclick = () => {
+  jumpMonthSelect.value = activeDate.getMonth();
+  jumpYearSelect.value = activeDate.getFullYear();
+  modalJump.classList.add("active");
+};
+
+document.getElementById("btnCancelJump").onclick = () => {
+  modalJump.classList.remove("active");
+};
+
+// Terapkan pilihan lompat
+document.getElementById("btnExecuteJump").onclick = () => {
+  const chosenMonth = parseInt(jumpMonthSelect.value, 10);
+  const chosenYear = parseInt(jumpYearSelect.value, 10);
+  
+  activeDate = new Date(chosenYear, chosenMonth, 1);
+  triggerHaptic();
+  render("next");
+  showMonthToast(MONTH_NAMES[chosenMonth], chosenYear);
+
+  modalJump.classList.remove("active");
+};
 
 // ==========================================
 // MODAL RESET DENGAN VALIDASI BERTINGKAT
@@ -232,12 +309,11 @@ const modalConfirm = document.getElementById("modalConfirm");
 const typedArea = document.getElementById("typedValidationArea");
 const validationInput = document.getElementById("validationInput");
 
-let pendingResetAction = null; // 'MONTH' atau 'ALL'
+let pendingResetAction = null;
 
 document.getElementById("btnOpenResetMenu").onclick = () => modalResetMenu.classList.add("active");
 document.getElementById("btnCloseResetMenu").onclick = () => modalResetMenu.classList.remove("active");
 
-// Opsi 1: Reset Hanya Bulan Aktif
 document.getElementById("btnChoiceMonth").onclick = () => {
   modalResetMenu.classList.remove("active");
   pendingResetAction = 'MONTH';
@@ -245,11 +321,9 @@ document.getElementById("btnChoiceMonth").onclick = () => {
   document.getElementById("confirmTitle").textContent = "Konfirmasi Reset Bulan Ini";
   document.getElementById("confirmDesc").textContent = `Apakah Anda yakin ingin MENGOSONGKAN catatan di bulan ${document.getElementById("spanSelectedMonth").textContent}?`;
   typedArea.style.display = "none";
-  
   modalConfirm.classList.add("active");
 };
 
-// Opsi 2: Reset Seluruh Bulan (All-Time)
 document.getElementById("btnChoiceAll").onclick = () => {
   modalResetMenu.classList.remove("active");
   pendingResetAction = 'ALL';
@@ -258,24 +332,20 @@ document.getElementById("btnChoiceAll").onclick = () => {
   document.getElementById("confirmDesc").textContent = "Tindakan ini akan MENGHAPUS SEMUA DATA tabungan dari SEMUA BULAN secara permanen!";
   typedArea.style.display = "block";
   validationInput.value = "";
-  
   modalConfirm.classList.add("active");
 };
 
-// Batalkan Reset
 document.getElementById("btnCancelConfirm").onclick = () => {
   modalConfirm.classList.remove("active");
   pendingResetAction = null;
 };
 
-// Eksekusi Reset setelah konfirmasi
 document.getElementById("btnExecuteConfirm").onclick = async () => {
   if (pendingResetAction === 'ALL') {
     if (validationInput.value.trim().toUpperCase() !== "HAPUS") {
       alert("Validasi gagal! Anda harus mengetik kata 'HAPUS' dengan tepat.");
       return;
     }
-    
     allMonthsData = {};
     render();
     try {
@@ -298,5 +368,5 @@ document.getElementById("btnExecuteConfirm").onclick = async () => {
   pendingResetAction = null;
 };
 
-// Inisialisasi awal tampilan
+// Inisialisasi awal
 render();
